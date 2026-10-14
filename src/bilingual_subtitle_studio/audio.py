@@ -3,7 +3,6 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-
 SUPPORTED_AUDIO_EXTENSIONS = {".wav", ".mp3", ".m4a", ".aac"}
 SUPPORTED_VIDEO_EXTENSIONS = {".mp4", ".mov", ".m4v"}
 

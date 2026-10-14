@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from bilingual_subtitle_studio.models import SubtitleSegment
 
-
 MAX_CHINESE_CHARS = 22
 MAX_ENGLISH_CHARS = 46
 MAX_DURATION_SECONDS = 5.0

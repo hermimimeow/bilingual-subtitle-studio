@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Protocol
+from typing import Protocol
 
 from bilingual_subtitle_studio.models import SubtitleSegment
 from bilingual_subtitle_studio.operations import OperationCancelled

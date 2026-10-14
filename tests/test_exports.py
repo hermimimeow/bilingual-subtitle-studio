@@ -1,5 +1,5 @@
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 from bilingual_subtitle_studio.audio import build_ffmpeg_audio_command
 from bilingual_subtitle_studio.fcpxml import render_basic_fcpxml

@@ -26,8 +26,10 @@ def render_srt(
             "\n".join(
                 [
                     str(output_index),
-                    f"{format_srt_timestamp(segment.start_seconds)} --> "
-                    f"{format_srt_timestamp(segment.end_seconds)}",
+                    (
+                        f"{format_srt_timestamp(segment.start_seconds)} --> "
+                        f"{format_srt_timestamp(segment.end_seconds)}"
+                    ),
                     segment.render_text(language_order),
                 ]
             )

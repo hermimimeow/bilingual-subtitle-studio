@@ -77,6 +77,23 @@ def _init_session_state(st: object) -> None:
             setattr(st.session_state, key, value)
 
 
+def _reset_to_demo(st: object) -> None:
+    st.session_state.rows = _segments_to_rows(demo_project().segments)
+    st.session_state.subtitle_source = "demo"
+    st.session_state.review_count = 0
+    st.session_state.export_complete = False
+    st.session_state.output_mode = "Original + Translation"
+    st.session_state.operation_running = False
+    st.session_state.operation_cancel_requested = False
+    st.session_state.operation_status = "idle"
+
+
+def _finish_if_still_running(st: object) -> None:
+    # Safety net for `finally`: marks the operation done if no branch finished it.
+    if st.session_state.operation_status in {"running", "stopping"}:
+        _finish_operation(st.session_state, "done", st.session_state.last_operation_summary)
+
+
 def _render_title(st: object) -> None:
     st.markdown(
         """
@@ -139,14 +156,7 @@ def _render_sidebar(st: object, logger: object) -> tuple[str, str, object]:
             st.caption(f"Log file: `{LOG_PATH}`")
             st.code(_read_log_tail(LOG_PATH), language="text")
         if st.button("Reset Demo"):
-            st.session_state.rows = _segments_to_rows(demo_project().segments)
-            st.session_state.subtitle_source = "demo"
-            st.session_state.review_count = 0
-            st.session_state.export_complete = False
-            st.session_state.output_mode = "Original + Translation"
-            st.session_state.operation_running = False
-            st.session_state.operation_cancel_requested = False
-            st.session_state.operation_status = "idle"
+            _reset_to_demo(st)
             logger.info("Reset subtitle rows to demo data")
             st.rerun()
 
@@ -289,8 +299,7 @@ def _render_transcription_section(st: object, logger: object, operation_placehol
                     _finish_operation(st.session_state, "done", st.session_state.last_operation_summary)
                     st.rerun()
             finally:
-                if st.session_state.operation_status in {"running", "stopping"}:
-                    _finish_operation(st.session_state, "done", st.session_state.last_operation_summary)
+                _finish_if_still_running(st)
 
 
 def _render_translation_section(st: object, logger: object, operation_placeholder: object) -> None:
@@ -385,8 +394,7 @@ def _render_translation_section(st: object, logger: object, operation_placeholde
                 _finish_operation(st.session_state, "done", st.session_state.last_operation_summary)
                 st.rerun()
             finally:
-                if st.session_state.operation_status in {"running", "stopping"}:
-                    _finish_operation(st.session_state, "done", st.session_state.last_operation_summary)
+                _finish_if_still_running(st)
 
 
 def _render_timeline_section(st: object) -> list[dict[str, object]]:

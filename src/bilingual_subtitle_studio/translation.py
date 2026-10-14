@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import replace
-from typing import Callable, Protocol
+from typing import Protocol
 
 from bilingual_subtitle_studio.models import SubtitleSegment, SubtitleStatus, ToneMode
 from bilingual_subtitle_studio.operations import OperationCancelled
-
 
 _TRANSLATION_RESPONSE_SCHEMA = {
     "type": "object",
@@ -158,11 +158,11 @@ def _apply_translation_payload(
     payload: object,
 ) -> tuple[SubtitleSegment, ...]:
     if not isinstance(payload, dict):
-        raise RuntimeError("Gemini returned an invalid translation payload.")
+        raise TypeError("Gemini returned an invalid translation payload.")
 
     translations = payload.get("translations")
     if not isinstance(translations, list):
-        raise RuntimeError("Gemini response did not include a translations list.")
+        raise TypeError("Gemini response did not include a translations list.")
 
     by_index: dict[int, tuple[str, bool]] = {}
     for item in translations:

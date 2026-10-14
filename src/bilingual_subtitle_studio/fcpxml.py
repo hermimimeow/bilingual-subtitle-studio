@@ -13,16 +13,20 @@ def render_basic_fcpxml(project: SubtitleProject) -> str:
         titles.append(
             "\n".join(
                 [
-                    f'        <title ref="r2" name="Subtitle {segment.index}" '
-                    f'offset="{segment.start_seconds:.3f}s" '
-                    f'duration="{segment.duration_seconds:.3f}s">',
+                    (
+                        f'        <title ref="r2" name="Subtitle {segment.index}" '
+                        f'offset="{segment.start_seconds:.3f}s" '
+                        f'duration="{segment.duration_seconds:.3f}s">'
+                    ),
                     "          <text>",
                     f"            <text-style ref=\"ts1\">{escape(segment.render_text(project.output_languages))}</text-style>",
                     "          </text>",
                     "          <text-style-def id=\"ts1\">",
-                    f"            <text-style font=\"{escape(project.style.font_family)}\" "
-                    f"fontSize=\"{project.style.source_font_size}\" "
-                    f"fontColor=\"{project.style.text_color}\"/>",
+                    (
+                        f"            <text-style font=\"{escape(project.style.font_family)}\" "
+                        f"fontSize=\"{project.style.source_font_size}\" "
+                        f"fontColor=\"{project.style.text_color}\"/>"
+                    ),
                     "          </text-style-def>",
                     "        </title>",
                 ]
