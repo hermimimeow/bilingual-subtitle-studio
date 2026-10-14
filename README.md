@@ -96,6 +96,24 @@ tests/
   test_ui_helpers.py
 ```
 
+## Third-Party Components
+
+This project uses these open-source packages and services. Each remains under its own license, and this project does not redistribute their source code.
+
+| Component | Used for | Owner | License |
+| --- | --- | --- | --- |
+| faster-whisper | Speech-to-text | SYSTRAN | MIT |
+| CTranslate2 | Inference engine for faster-whisper | OpenNMT | MIT |
+| Whisper models | Transcription weights | OpenAI | MIT |
+| google-genai | Gemini API client | Google | Apache-2.0 |
+| Streamlit | Local browser UI | Snowflake | Apache-2.0 |
+| PyAV | Audio/video decoding | PyAV maintainers | BSD-3-Clause |
+| tqdm | Progress bars | tqdm maintainers | MPL-2.0 AND MIT |
+| certifi | TLS certificate bundle | certifi maintainers | MPL-2.0 |
+| FFmpeg | Audio extraction (external binary) | FFmpeg project | LGPL/GPL, depending on build |
+
+The Gemini API is a hosted service governed by Google's terms, not a library license. Its key is supplied by each user.
+
 ## Documents
 
 - `PRD.md`: product requirements from the creator workflow perspective.
