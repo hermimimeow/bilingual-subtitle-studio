@@ -17,6 +17,17 @@ uv run bilingual-subtitle-studio demo --output-dir outputs/demo
 
 The demo command writes sample bilingual subtitle exports without requiring a transcription model.
 
+## Development
+
+Run the tests and lint checks from the project folder:
+
+```bash
+uv run pytest
+uv run ruff check src tests
+```
+
+Ruff and pytest are dev dependencies, so `uv sync` installs them.
+
 ## Start The Clickable UI
 
 ```bash
