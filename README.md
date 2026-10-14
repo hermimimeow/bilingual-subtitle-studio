@@ -91,6 +91,7 @@ src/bilingual_subtitle_studio/
   operations.py     Long-running operation cancellation helpers
   styles.py         Dark theme CSS for the Streamlit UI
   ui.py             Streamlit local browser UI, split into one function per section
+  ui_logic.py       Pure UI helpers (progress, row conversion, export rules); no Streamlit imports
 tests/
   test_exports.py
   test_translation.py

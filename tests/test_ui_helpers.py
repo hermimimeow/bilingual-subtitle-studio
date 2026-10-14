@@ -1,7 +1,7 @@
 import unittest
 
 from bilingual_subtitle_studio.models import SubtitleSegment, SubtitleStatus
-from bilingual_subtitle_studio.ui import (
+from bilingual_subtitle_studio.ui_logic import (
     _calculate_progress,
     _current_task,
     _download_payload,
