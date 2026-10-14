@@ -89,7 +89,8 @@ src/bilingual_subtitle_studio/
   transcription.py  Speech-to-text engine interface
   translation.py    Translation/rewrite engine interface
   operations.py     Long-running operation cancellation helpers
-  ui.py             Streamlit local browser UI
+  styles.py         Dark theme CSS for the Streamlit UI
+  ui.py             Streamlit local browser UI, split into one function per section
 tests/
   test_exports.py
   test_translation.py

@@ -8,7 +8,11 @@ from bilingual_subtitle_studio.app_logging import LOG_PATH, get_logger
 from bilingual_subtitle_studio.audio import extract_audio, is_supported_audio, is_supported_video
 from bilingual_subtitle_studio.demo_data import demo_project
 from bilingual_subtitle_studio.fcpxml import render_basic_fcpxml, write_basic_fcpxml
-from bilingual_subtitle_studio.languages import LANGUAGE_BY_CODE, LANGUAGE_LABEL_TO_CODE, SUPPORTED_LANGUAGES
+from bilingual_subtitle_studio.languages import (
+    LANGUAGE_BY_CODE,
+    LANGUAGE_LABEL_TO_CODE,
+    SUPPORTED_LANGUAGES,
+)
 from bilingual_subtitle_studio.models import (
     SubtitleLine,
     SubtitleLineRole,
@@ -18,6 +22,7 @@ from bilingual_subtitle_studio.models import (
     ToneMode,
 )
 from bilingual_subtitle_studio.operations import OperationCancelled
+from bilingual_subtitle_studio.styles import inject_dark_style
 from bilingual_subtitle_studio.subtitles import render_plain_text, render_srt
 from bilingual_subtitle_studio.transcription import FasterWhisperTranscriptionEngine
 from bilingual_subtitle_studio.translation import GeminiTranslationEngine
@@ -27,36 +32,52 @@ def main() -> None:
     import streamlit as st
 
     st.set_page_config(page_title="Bilingual Subtitle Studio", layout="wide")
-    _inject_dark_style(st)
+    inject_dark_style(st)
     logger = get_logger("bilingual_subtitle_studio.ui")
 
+    _init_session_state(st)
+    _render_title(st)
+    output_dir, upload_dir, operation_placeholder = _render_sidebar(st, logger)
+    _render_import_section(st, logger, upload_dir)
+    _render_transcription_section(st, logger, operation_placeholder)
+    _render_translation_section(st, logger, operation_placeholder)
+    edited_rows = _render_timeline_section(st)
+
+    try:
+        segments = _rows_to_segments(
+            edited_rows,
+            target_language_code=st.session_state.target_language_code,
+        )
+    except ValueError as error:
+        st.error(str(error))
+        return
+
+    _render_export_section(st, logger, operation_placeholder, output_dir, segments)
+
+
+def _init_session_state(st: object) -> None:
     if "rows" not in st.session_state:
         st.session_state.rows = _segments_to_rows(demo_project().segments)
-    if "subtitle_source" not in st.session_state:
-        st.session_state.subtitle_source = "demo"
-    if "prepared_audio_path" not in st.session_state:
-        st.session_state.prepared_audio_path = ""
-    if "review_count" not in st.session_state:
-        st.session_state.review_count = 0
-    if "srt_base_text" not in st.session_state:
-        st.session_state.srt_base_text = ""
-    if "srt_edit_text" not in st.session_state:
-        st.session_state.srt_edit_text = ""
-    if "export_complete" not in st.session_state:
-        st.session_state.export_complete = False
-    if "target_language_code" not in st.session_state:
-        st.session_state.target_language_code = "en"
-    if "output_mode" not in st.session_state:
-        st.session_state.output_mode = "Original + Translation"
-    if "last_operation_summary" not in st.session_state:
-        st.session_state.last_operation_summary = "Idle"
-    if "operation_running" not in st.session_state:
-        st.session_state.operation_running = False
-    if "operation_cancel_requested" not in st.session_state:
-        st.session_state.operation_cancel_requested = False
-    if "operation_status" not in st.session_state:
-        st.session_state.operation_status = "idle"
+    defaults = {
+        "subtitle_source": "demo",
+        "prepared_audio_path": "",
+        "review_count": 0,
+        "srt_base_text": "",
+        "srt_edit_text": "",
+        "export_complete": False,
+        "target_language_code": "en",
+        "output_mode": "Original + Translation",
+        "last_operation_summary": "Idle",
+        "operation_running": False,
+        "operation_cancel_requested": False,
+        "operation_status": "idle",
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            setattr(st.session_state, key, value)
 
+
+def _render_title(st: object) -> None:
     st.markdown(
         """
 <div class="top-title">Bilingual Subtitle Studio</div>
@@ -64,6 +85,22 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
+
+def _render_section_heading(st: object, index: str, title: str, class_name: str = "section-heading") -> None:
+    st.markdown(
+        f"""
+<div class="{class_name}">
+  <span class="section-index">{index}</span>
+  <div>
+    <h2>{title}</h2>
+  </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_sidebar(st: object, logger: object) -> tuple[str, str, object]:
     with st.sidebar:
         st.markdown("<div class='side-logo'>BSS</div>", unsafe_allow_html=True)
         progress = _calculate_progress(
@@ -113,17 +150,11 @@ def main() -> None:
             logger.info("Reset subtitle rows to demo data")
             st.rerun()
 
-    st.markdown(
-        """
-<div class="section-heading">
-  <span class="section-index">01</span>
-  <div>
-    <h2>Import Media</h2>
-  </div>
-</div>
-""",
-        unsafe_allow_html=True,
-    )
+    return output_dir, upload_dir, operation_placeholder
+
+
+def _render_import_section(st: object, logger: object, upload_dir: str) -> None:
+    _render_section_heading(st, "01", "Import Media")
     uploaded_file = st.file_uploader(
         "Upload audio or video",
         type=["wav", "mp3", "m4a", "aac", "mp4", "mov", "m4v"],
@@ -168,17 +199,9 @@ def main() -> None:
             logger.warning("Unsupported uploaded file type: %s", uploaded_path)
             st.error(f"Unsupported file type: {uploaded_path.suffix}")
 
-    st.markdown(
-        """
-<div class="section-heading">
-  <span class="section-index">02</span>
-  <div>
-    <h2>Transcription</h2>
-  </div>
-</div>
-""",
-        unsafe_allow_html=True,
-    )
+
+def _render_transcription_section(st: object, logger: object, operation_placeholder: object) -> None:
+    _render_section_heading(st, "02", "Transcription")
     transcribe_col, settings_col = st.columns([1.1, 0.9], gap="large")
     with settings_col:
         model_size = st.selectbox("Whisper model", ["tiny", "base", "small", "medium", "large-v3"], index=1)
@@ -269,17 +292,9 @@ def main() -> None:
                 if st.session_state.operation_status in {"running", "stopping"}:
                     _finish_operation(st.session_state, "done", st.session_state.last_operation_summary)
 
-    st.markdown(
-        """
-<div class="section-heading">
-  <span class="section-index">03</span>
-  <div>
-    <h2>Gemini Translation</h2>
-  </div>
-</div>
-""",
-        unsafe_allow_html=True,
-    )
+
+def _render_translation_section(st: object, logger: object, operation_placeholder: object) -> None:
+    _render_section_heading(st, "03", "Gemini Translation")
     translate_col, translate_settings_col = st.columns([1.1, 0.9], gap="large")
     with translate_settings_col:
         gemini_api_key = st.text_input(
@@ -373,17 +388,9 @@ def main() -> None:
                 if st.session_state.operation_status in {"running", "stopping"}:
                     _finish_operation(st.session_state, "done", st.session_state.last_operation_summary)
 
-    st.markdown(
-        """
-<div class="section-heading editor-heading">
-  <span class="section-index">04</span>
-  <div>
-    <h2>Subtitle Timeline</h2>
-  </div>
-</div>
-""",
-        unsafe_allow_html=True,
-    )
+
+def _render_timeline_section(st: object) -> list[dict[str, object]]:
+    _render_section_heading(st, "04", "Subtitle Timeline", class_name="section-heading editor-heading")
     if st.session_state.subtitle_source == "demo":
         st.warning("Demo data")
     elif st.session_state.subtitle_source == "gemini_translation":
@@ -419,16 +426,16 @@ def main() -> None:
     if edited_rows != st.session_state.rows:
         st.session_state.export_complete = False
     st.session_state.rows = edited_rows
+    return edited_rows
 
-    try:
-        segments = _rows_to_segments(
-            edited_rows,
-            target_language_code=st.session_state.target_language_code,
-        )
-    except ValueError as error:
-        st.error(str(error))
-        return
 
+def _render_export_section(
+    st: object,
+    logger: object,
+    operation_placeholder: object,
+    output_dir: str,
+    segments: list[SubtitleSegment],
+) -> None:
     output_mode = st.selectbox(
         "Output mode",
         ["Original + Translation", "Original only", "Translation only"],
@@ -455,17 +462,7 @@ def main() -> None:
         st.session_state.srt_base_text = srt_text
         st.session_state.srt_edit_text = srt_text
 
-    st.markdown(
-        """
-<div class="section-heading export-heading">
-  <span class="section-index">05</span>
-  <div>
-    <h2>Export</h2>
-  </div>
-</div>
-""",
-        unsafe_allow_html=True,
-    )
+    _render_section_heading(st, "05", "Export", class_name="section-heading export-heading")
 
     metric_col1, metric_col2, metric_col3 = st.columns(3)
     with metric_col1:
@@ -526,278 +523,6 @@ def main() -> None:
         st.code(plain_text, language="text")
     with tab_fcpxml:
         st.code(fcpxml_text, language="xml")
-
-
-def _inject_dark_style(st: object) -> None:
-    st.markdown(
-        """
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-:root {
-  --bg: #070a12;
-  --panel: rgba(15, 23, 42, 0.74);
-  --panel-strong: rgba(17, 24, 39, 0.94);
-  --border: rgba(148, 163, 184, 0.22);
-  --text: #e5e7eb;
-  --muted: #94a3b8;
-  --cyan: #22d3ee;
-  --violet: #8b5cf6;
-  --pink: #ec4899;
-  --green: #34d399;
-}
-
-html, body, [class*="css"] {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.stApp {
-  color: var(--text);
-  background:
-    radial-gradient(circle at 18% 8%, rgba(124, 58, 237, 0.34), transparent 34%),
-    radial-gradient(circle at 82% 18%, rgba(34, 211, 238, 0.24), transparent 30%),
-    radial-gradient(circle at 45% 88%, rgba(236, 72, 153, 0.14), transparent 36%),
-    linear-gradient(135deg, #050711 0%, #090d19 48%, #030712 100%);
-}
-
-.block-container {
-  max-width: 1320px;
-  padding-top: 2.2rem;
-  padding-bottom: 4rem;
-}
-
-[data-testid="stSidebar"] {
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.98), rgba(15, 23, 42, 0.94));
-  border-right: 1px solid rgba(34, 211, 238, 0.16);
-}
-
-[data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
-  color: #f8fafc;
-}
-
-.side-logo {
-  width: 58px;
-  height: 58px;
-  display: grid;
-  place-items: center;
-  margin: 0.35rem 0 1.2rem;
-  border-radius: 18px;
-  background: linear-gradient(135deg, var(--cyan), var(--violet) 52%, var(--pink));
-  color: #020617;
-  font-weight: 900;
-  letter-spacing: -0.08em;
-  box-shadow: 0 0 34px rgba(34, 211, 238, 0.28);
-}
-
-.top-title {
-  position: fixed;
-  top: 0.72rem;
-  right: 1.1rem;
-  z-index: 999;
-  padding: 0.42rem 0.7rem;
-  border: 1px solid rgba(34, 211, 238, 0.26);
-  border-radius: 999px;
-  background: rgba(2, 6, 23, 0.72);
-  color: #cbd5e1;
-  font-size: 0.82rem;
-  font-weight: 750;
-  letter-spacing: -0.02em;
-  backdrop-filter: blur(12px);
-}
-
-.section-heading {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 1.5rem 0 0.8rem;
-}
-
-.section-index {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  color: #020617;
-  background: linear-gradient(135deg, var(--cyan), var(--green));
-  font-weight: 900;
-  box-shadow: 0 0 28px rgba(34, 211, 238, 0.22);
-}
-
-.section-heading h2 {
-  margin: 0;
-  color: #f8fafc;
-  font-size: 1.55rem;
-  letter-spacing: -0.04em;
-}
-
-.section-heading p {
-  margin: 0.15rem 0 0;
-  color: var(--muted);
-}
-
-.signal-card {
-  min-height: 132px;
-  padding: 1.2rem;
-  border: 1px solid rgba(34, 211, 238, 0.2);
-  border-radius: 24px;
-  background: linear-gradient(135deg, rgba(8, 47, 73, 0.4), rgba(15, 23, 42, 0.8));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
-}
-
-.signal-card strong {
-  color: #f8fafc;
-  font-size: 1.02rem;
-}
-
-.signal-card p {
-  margin: 0.55rem 0 0;
-  color: #a7b4c8;
-  line-height: 1.55;
-}
-
-.signal-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin-right: 0.55rem;
-  border-radius: 999px;
-  background: var(--green);
-  box-shadow: 0 0 18px var(--green);
-}
-
-.progress-panel {
-  margin: 1rem 0;
-  padding: 0.9rem;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 18px;
-  background: rgba(15, 23, 42, 0.62);
-}
-
-.task-card {
-  margin: 0.5rem 0 1rem;
-  padding: 1rem;
-  border: 1px solid rgba(34, 211, 238, 0.24);
-  border-radius: 20px;
-  background:
-    linear-gradient(135deg, rgba(8, 47, 73, 0.55), rgba(30, 41, 59, 0.68)),
-    radial-gradient(circle at 100% 0%, rgba(52, 211, 153, 0.18), transparent 42%);
-}
-
-.task-label {
-  color: #67e8f9;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.task-title {
-  margin-top: 0.25rem;
-  color: #f8fafc;
-  font-size: 1.15rem;
-  font-weight: 850;
-  letter-spacing: -0.04em;
-}
-
-.task-note {
-  margin-top: 0.35rem;
-  color: #a7b4c8;
-  font-size: 0.84rem;
-  line-height: 1.45;
-}
-
-.progress-panel h3 {
-  margin: 0 0 0.65rem;
-  font-size: 0.95rem;
-}
-
-.progress-row {
-  margin: 0.55rem 0;
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.22rem;
-  color: #cbd5e1;
-  font-size: 0.82rem;
-}
-
-.progress-track {
-  height: 7px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(51, 65, 85, 0.9);
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--cyan), var(--green));
-}
-
-[data-testid="stFileUploader"],
-[data-testid="stDataFrameResizable"],
-[data-testid="stMetric"],
-[data-testid="stTabs"] {
-  border-radius: 24px;
-}
-
-[data-testid="stFileUploader"] section {
-  border: 1px dashed rgba(34, 211, 238, 0.38);
-  border-radius: 24px;
-  background: rgba(15, 23, 42, 0.72);
-}
-
-[data-testid="stMetric"] {
-  padding: 1rem;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.78), rgba(30, 41, 59, 0.54));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
-.stButton > button, .stDownloadButton > button {
-  width: 100%;
-  border: 1px solid rgba(34, 211, 238, 0.28);
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.95), rgba(124, 58, 237, 0.94));
-  color: white;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.22);
-  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
-}
-
-.stButton > button:hover, .stDownloadButton > button:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.08);
-  box-shadow: 0 18px 44px rgba(34, 211, 238, 0.28);
-}
-
-[data-testid="stAlert"] {
-  border-radius: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  background: rgba(15, 23, 42, 0.7);
-}
-
-.stCodeBlock pre {
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 20px;
-  background: rgba(2, 6, 23, 0.82) !important;
-}
-
-input, textarea {
-  border-radius: 14px !important;
-}
-
-hr {
-  border-color: rgba(148, 163, 184, 0.16);
-}
-</style>
-""",
-        unsafe_allow_html=True,
-    )
 
 
 def _calculate_progress(
