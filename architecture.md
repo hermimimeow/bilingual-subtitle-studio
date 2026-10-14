@@ -13,7 +13,7 @@ Audio or video input
   -> local audio preparation
   -> speech-to-text transcription
   -> subtitle chunking
-  -> bilingual translation/rewrite
+  -> target-language translation/rewrite
   -> user review/edit
   -> SRT/TXT/FCPXML export
 ```
@@ -26,10 +26,11 @@ Audio or video input
 | Audio Processor | Uses FFmpeg to extract mono 16 kHz audio optimized for transcription. |
 | Transcription Engine | Wraps Whisper, faster-whisper, or whisper.cpp. |
 | Chunking Engine | Converts transcript segments into readable subtitle blocks. |
-| Translation Engine | Produces second-language subtitle text and tone rewrites with Gemini or another provider. |
+| Translation Engine | Produces target-language subtitle text and tone rewrites with Gemini or another provider. |
 | Subtitle Model | Defines shared project, segment, style, and export data structures. |
-| Export Engine | Writes SRT, plain text, and FCPXML files. |
-| Future UI | Provides table editing, timing adjustment, preview, and style selection. |
+| Export Engine | Writes SRT, plain text, and FCPXML title timelines. |
+| Streamlit UI | Provides upload, transcription, translation, review, editable SRT output, format selection, progress, and export. |
+| Operation State | Tracks long-running operation status, elapsed time, ETA, and best-effort cancellation. |
 
 ## Source Layout
 
@@ -45,6 +46,8 @@ src/bilingual_subtitle_studio/
   subtitles.py
   transcription.py
   translation.py
+  operations.py
+  ui.py
 ```
 
 ## Data Model
@@ -84,7 +87,7 @@ The transcription module starts as an interface. MVP implementations can support
 
 ## Translation Strategy
 
-Translation and rewrite should preserve subtitle timing. Tone modes should change phrasing only, not timestamps. The current UI uses Gemini for this step after local Whisper transcription.
+Translation and rewrite should preserve subtitle timing. Tone modes should change phrasing only, not timestamps. The current UI uses Gemini for this step after local Whisper transcription and supports one generated target language at a time.
 
 Initial tone modes:
 
@@ -95,13 +98,15 @@ Initial tone modes:
 - Short-Form
 - Xiaohongshu
 
-The module should support both local and cloud-backed implementations later. Cloud use must be explicit because the PRD requires users to know when data leaves the machine. Gemini receives subtitle text only, not audio/video files or local paths.
+The module should support both local and cloud-backed implementations later. Cloud use must be explicit because the PRD requires users to know when data leaves the machine. Gemini receives subtitle text only, not audio/video files or local paths. Translation runs in batches so progress and ETA can be shown and cancellation can happen between batches.
 
 ## Export Strategy
 
 ### SRT
 
 SRT export is the first reliable format. It should be deterministic and easy to test.
+
+The UI provides an editable SRT text area before download/export. If the user edits or removes lines there, the SRT download and local SRT file use the edited text.
 
 ### Plain Text
 
@@ -111,9 +116,21 @@ Plain text export supports review, copy editing, and script reuse.
 
 FCPXML export is a P1 feature because Final Cut title XML can be fragile across versions. The first implementation should generate a minimal timeline with title clips and basic style metadata, then be tested with real Final Cut imports.
 
+Current FCPXML generation keeps `format` and `effect` resources in `<resources>`, attaches title clips with `ref="r2"`, and places `text-style-def` inside each title clip to match Final Cut's DTD expectations.
+
+### Output Modes
+
+The UI supports:
+
+- `Original + Translation`
+- `Original only`
+- `Translation only`
+
+Rows marked `needs_review` warn the user but do not block draft export.
+
 ## UI Strategy
 
-Start with a CLI and simple project files. Build UI after the processing pipeline is stable.
+The current prototype uses Streamlit for a local browser UI. Streamlit is acceptable for MVP validation, while long-running Whisper and Gemini operations remain in the Python processing layer.
 
 Possible UI paths:
 

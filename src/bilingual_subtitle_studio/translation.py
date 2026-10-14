@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
-from typing import Protocol
+from typing import Callable, Protocol
 
 from bilingual_subtitle_studio.models import SubtitleSegment, SubtitleStatus, ToneMode
+from bilingual_subtitle_studio.operations import OperationCancelled
 
 
 _TRANSLATION_RESPONSE_SCHEMA = {
@@ -33,6 +34,8 @@ class TranslationEngine(Protocol):
         segments: tuple[SubtitleSegment, ...],
         target_language: str,
         tone: ToneMode,
+        progress_callback: Callable[[int, int], None] | None = None,
+        cancel_requested: Callable[[], bool] | None = None,
     ) -> tuple[SubtitleSegment, ...]:
         """Return segments with translated_text populated while preserving timing."""
 
@@ -43,6 +46,8 @@ class PassthroughTranslationEngine:
         segments: tuple[SubtitleSegment, ...],
         target_language: str,
         tone: ToneMode,
+        progress_callback: Callable[[int, int], None] | None = None,
+        cancel_requested: Callable[[], bool] | None = None,
     ) -> tuple[SubtitleSegment, ...]:
         return segments
 
@@ -52,15 +57,19 @@ class GeminiTranslationEngine:
         self,
         model_name: str = "gemini-2.5-flash",
         api_key: str | None = None,
+        batch_size: int = 25,
     ) -> None:
         self.model_name = model_name
         self.api_key = api_key
+        self.batch_size = batch_size
 
     def translate(
         self,
         segments: tuple[SubtitleSegment, ...],
         target_language: str,
         tone: ToneMode,
+        progress_callback: Callable[[int, int], None] | None = None,
+        cancel_requested: Callable[[], bool] | None = None,
     ) -> tuple[SubtitleSegment, ...]:
         if not segments:
             return segments
@@ -71,6 +80,28 @@ class GeminiTranslationEngine:
             raise RuntimeError("google-genai is not installed. Run `uv sync` first.") from error
 
         client = genai.Client(api_key=self.api_key) if self.api_key else genai.Client()
+        translated_batches: list[SubtitleSegment] = []
+        batches = _batch_segments(segments, self.batch_size)
+        for batch_index, batch in enumerate(batches, start=1):
+            if cancel_requested is not None and cancel_requested():
+                translated_batches.extend(_cancelled_segments(batch))
+                for remaining_batch in batches[batch_index:]:
+                    translated_batches.extend(_cancelled_segments(remaining_batch))
+                raise OperationCancelled("Translation stopped by user.")
+
+            translated_batches.extend(self._translate_batch(client, batch, target_language, tone))
+            if progress_callback is not None:
+                progress_callback(batch_index, len(batches))
+
+        return tuple(translated_batches)
+
+    def _translate_batch(
+        self,
+        client: object,
+        segments: tuple[SubtitleSegment, ...],
+        target_language: str,
+        tone: ToneMode,
+    ) -> tuple[SubtitleSegment, ...]:
         response = client.models.generate_content(
             model=self.model_name,
             contents=_build_translation_prompt(segments, target_language, tone),
@@ -147,7 +178,7 @@ def _apply_translation_payload(
 
     translated_segments: list[SubtitleSegment] = []
     for segment in segments:
-        translated_text, needs_review = by_index.get(segment.index, (segment.translated_text, True))
+        translated_text, needs_review = by_index.get(segment.index, ("", True))
         translated_segments.append(
             replace(
                 segment,
@@ -158,3 +189,21 @@ def _apply_translation_payload(
         )
 
     return tuple(translated_segments)
+
+
+def _batch_segments(
+    segments: tuple[SubtitleSegment, ...],
+    batch_size: int,
+) -> tuple[tuple[SubtitleSegment, ...], ...]:
+    safe_batch_size = max(batch_size, 1)
+    return tuple(
+        segments[index : index + safe_batch_size]
+        for index in range(0, len(segments), safe_batch_size)
+    )
+
+
+def _cancelled_segments(segments: tuple[SubtitleSegment, ...]) -> tuple[SubtitleSegment, ...]:
+    return tuple(
+        replace(segment, translated_text=segment.translated_text, status=SubtitleStatus.NEEDS_REVIEW)
+        for segment in segments
+    )

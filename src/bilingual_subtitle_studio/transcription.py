@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol
 
 from bilingual_subtitle_studio.models import SubtitleSegment
+from bilingual_subtitle_studio.operations import OperationCancelled
 
 
 class TranscriptionEngine(Protocol):
@@ -35,6 +36,8 @@ class FasterWhisperTranscriptionEngine:
         audio_path: Path,
         language: str | None = None,
         vad_filter: bool = True,
+        progress_callback: Callable[[float, float | None], None] | None = None,
+        cancel_requested: Callable[[], bool] | None = None,
     ) -> tuple[SubtitleSegment, ...]:
         if not audio_path.exists():
             raise FileNotFoundError(audio_path)
@@ -56,9 +59,13 @@ class FasterWhisperTranscriptionEngine:
             language=language or None,
             vad_filter=vad_filter,
         )
+        duration = float(getattr(_info, "duration", 0.0) or 0.0) or None
 
         segments: list[SubtitleSegment] = []
         for index, segment in enumerate(whisper_segments, start=1):
+            if cancel_requested is not None and cancel_requested():
+                raise OperationCancelled("Transcription stopped by user.")
+
             text = segment.text.strip()
             if not text:
                 continue
@@ -73,5 +80,7 @@ class FasterWhisperTranscriptionEngine:
                     source_text=text,
                 )
             )
+            if progress_callback is not None:
+                progress_callback(end_seconds, duration)
 
         return tuple(segments)

@@ -1,4 +1,4 @@
-# PRD: Local AI Bilingual Subtitle Tool for Final Cut Pro Creators
+# PRD: Local AI Subtitle Tool for Final Cut Pro Creators
 
 ## 1. Product Name
 
@@ -9,13 +9,13 @@
 
 ## 2. Product Summary
 
-Bilingual Subtitle Studio is a local-first subtitle generation and editing tool designed for content creators who edit videos in Final Cut Pro. The tool helps creators generate, edit, style, and export bilingual subtitles without uploading large video files or manually trimming every subtitle line in Final Cut.
+Bilingual Subtitle Studio is a local-first subtitle generation and editing tool designed for content creators who edit videos in Final Cut Pro. The tool helps creators generate, edit, style, translate, and export subtitles without uploading large video files or manually trimming every subtitle line in Final Cut.
 
-The product takes a creator's final edited audio, generates timestamped subtitles, creates a second-language subtitle layer, allows manual editing in a subtitle-focused interface, and exports the result back to Final Cut Pro as either standard subtitle files or editable styled title layers.
+The product takes a creator's final edited audio or local video file, generates timestamped subtitles, optionally creates one target-language subtitle layer, allows manual editing in a subtitle-focused interface, and exports the result back to Final Cut Pro as either standard subtitle files or editable styled title layers.
 
 The core promise:
 
-> Generate editable Chinese-English subtitles from your final audio and place them automatically into your Final Cut Pro timeline with consistent creator-style formatting.
+> Generate editable subtitles from your final audio, optionally rewrite them into a target language, and place them into your Final Cut Pro timeline with consistent creator-style formatting.
 
 ---
 
@@ -868,3 +868,26 @@ For bilingual creators using Final Cut Pro, Bilingual Subtitle Studio is a local
 
 Unlike general subtitle generators, it is designed for creator-style bilingual videos, avoids full-video uploads, supports natural rewriting, and helps creators keep subtitle timing and visual style consistent across the whole video.
 
+---
+
+## 25. Current Implementation Notes
+
+The current prototype has evolved beyond the original Chinese-English-only assumption.
+
+Current behavior:
+
+- The UI runs in Streamlit as a local browser app.
+- Audio/video files stay local.
+- `faster-whisper` creates source-language transcript rows and timestamps.
+- Gemini can generate one selected target-language translation/rewrite track at a time.
+- Target language is selected from the supported language list.
+- Output modes are `Original + Translation`, `Original only`, and `Translation only`.
+- The SRT output can be edited directly before download or local export.
+- Rows marked `needs_review` warn the user but do not block draft export.
+- The download control uses a dropdown for `SRT`, `TXT`, or `FCPXML`.
+- The sidebar shows workflow progress, operation status, elapsed time, ETA where available, and a best-effort `Stop process` control.
+- FCPXML export creates basic Final Cut title clips, keeps DTD-valid resource structure, and references the Basic Title effect from each title clip.
+
+Current limitation:
+
+- The app supports one generated target language at a time. True multi-target-language export can be added later by expanding `SubtitleSegment` from a single `translated_text` field to multiple generated `SubtitleLine` records.
