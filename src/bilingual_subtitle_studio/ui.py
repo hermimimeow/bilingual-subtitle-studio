@@ -21,7 +21,7 @@ from bilingual_subtitle_studio.models import (
     SubtitleStatus,
 )
 from bilingual_subtitle_studio.operations import OperationCancelled
-from bilingual_subtitle_studio.styles import inject_dark_style
+from bilingual_subtitle_studio.styles import inject_app_style
 from bilingual_subtitle_studio.subtitles import render_plain_text, render_srt
 from bilingual_subtitle_studio.transcription import FasterWhisperTranscriptionEngine
 from bilingual_subtitle_studio.translation import GeminiTranslationEngine
@@ -55,7 +55,7 @@ def main() -> None:
     import streamlit as st
 
     st.set_page_config(page_title="Bilingual Subtitle Studio", layout="wide")
-    inject_dark_style(st)
+    inject_app_style(st)
     logger = get_logger("bilingual_subtitle_studio.ui")
 
     _init_session_state(st)
