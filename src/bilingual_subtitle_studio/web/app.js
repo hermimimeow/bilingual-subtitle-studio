@@ -391,6 +391,26 @@ async function saveAll() {
   renderAll();
 }
 
+// ---------- Theme ----------
+
+function currentTheme() {
+  const set = document.documentElement.dataset.theme;
+  if (set === "light" || set === "dark") return set;
+  return matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  try {
+    localStorage.setItem("bss-theme", theme);
+  } catch (error) {
+    // Storage unavailable: the choice still applies for this page view.
+  }
+  const toggle = $("#theme-toggle");
+  const next = theme === "dark" ? "light" : "dark";
+  toggle.textContent = `${next[0].toUpperCase()}${next.slice(1)} mode`;
+}
+
 // ---------- Wiring ----------
 
 function wire() {
@@ -423,6 +443,8 @@ function wire() {
     scheduleExportPreview();
   });
   $("#target-language").addEventListener("change", scheduleExportPreview);
+  $("#theme-toggle").addEventListener("click", () => setTheme(currentTheme() === "dark" ? "light" : "dark"));
+  setTheme(currentTheme());
 
   for (const tab of document.querySelectorAll(".tab")) {
     tab.addEventListener("click", () => {

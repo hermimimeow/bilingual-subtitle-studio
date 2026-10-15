@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bilingual Subtitle Studio</title>
     <link rel="stylesheet" href="/static/app.css" />
+    <script>
+      // Apply the saved theme before first paint, so the page never flashes the wrong one.
+      try {
+        const saved = localStorage.getItem("bss-theme");
+        if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+      } catch (error) {
+        // Storage can be unavailable (private windows); the system setting then applies.
+      }
+    </script>
   </head>
   <body>
     <header class="topbar">
@@ -15,7 +24,10 @@
           <p>Transcribe, translate, review, and export. Runs on this machine.</p>
         </div>
       </div>
-      <span class="local-pill">Local</span>
+      <div class="header-actions">
+        <span class="local-pill">Local</span>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch color theme">Light mode</button>
+      </div>
     </header>
 
     <nav id="stepper" class="stepper" aria-label="Workflow steps"></nav>
