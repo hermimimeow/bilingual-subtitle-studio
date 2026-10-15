@@ -53,6 +53,21 @@ def _calculate_progress(
     }
 
 
+STEP_NAMES = ("Import", "Transcribe", "Translate", "Review", "Export")
+
+
+def _current_step(progress: dict[str, int]) -> str | None:
+    """Return the first unfinished workflow step.
+
+    Args:
+        progress: Percent complete per step, as returned by calculate_progress.
+
+    Returns:
+        The step name, or None when every step is at 100 percent.
+    """
+    return next((step for step in STEP_NAMES if progress[step] < 100), None)
+
+
 def _current_task(progress: dict[str, int]) -> tuple[str, str]:
     if progress["Import"] < 100:
         return "Import media", "Upload audio or video to begin."

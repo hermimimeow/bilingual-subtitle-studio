@@ -4,6 +4,12 @@ Local-first AI subtitle workflow for creators using Final Cut Pro.
 
 The MVP focuses on turning a final audio or local video export into editable subtitle data, then exporting SRT, plain text, and FCPXML title clips for Final Cut Pro.
 
+## Why I Started This Project
+
+I make videos on YouTube as a part-time hobby. I film, edit, and publish them myself, so subtitles are the step that used to take the most time.
+
+My voice-over is mostly in Cantonese, my mother tongue. The conversations between friends are mostly in English or Mandarin. I want every video to be bilingual, and I often want local terms shown in each language as well. Typing and timing those lines by hand for every project was slow, so I built this tool to do most of that work and leave me free to focus on the story.
+
 ## Why Python + uv
 
 This project is optimized for local audio, transcription, subtitle processing, and XML export. Python has the strongest ecosystem for Whisper/faster-whisper, FFmpeg orchestration, subtitle tooling, and local AI workflows. `uv` keeps the local developer workflow fast and reproducible.
@@ -28,7 +34,15 @@ uv run ruff check src tests
 
 Ruff and pytest are dev dependencies, so `uv sync` installs them.
 
-## Start The Clickable UI
+## Start The Web UI
+
+```bash
+uv run bilingual-subtitle-studio-web
+```
+
+Then open http://127.0.0.1:8000. The server listens on this computer only. The page has five steps: import media, transcribe, translate with Gemini, review the subtitle rows, and export. Long jobs run in the background, and you can stop them from the page.
+
+## Start The Clickable UI (Streamlit)
 
 ```bash
 uv run streamlit run src/bilingual_subtitle_studio/ui.py
@@ -101,9 +115,12 @@ src/bilingual_subtitle_studio/
   translation.py    Translation/rewrite engine interface
   operations.py     Long-running operation cancellation helpers
   styles.py         Dark theme CSS for the Streamlit UI
+  api.py            Local web API: uploads, background jobs, exports
+  web/              Browser page: HTML, CSS, and JavaScript
   ui.py             Streamlit local browser UI, split into one function per section
   ui_logic.py       Pure UI helpers (progress, row conversion, export rules); no Streamlit imports
 tests/
+  test_api.py
   test_exports.py
   test_translation.py
   test_ui_helpers.py
@@ -121,6 +138,10 @@ This project uses these open-source packages and services. Each remains under it
 | google-genai | Gemini API client | Google | Apache-2.0 |
 | Streamlit | Local browser UI | Snowflake | Apache-2.0 |
 | PyAV | Audio/video decoding | PyAV maintainers | BSD-3-Clause (wrapper); its macOS wheels bundle FFmpeg built with GPL components (libx264, libx265) |
+| FastAPI | Web API for the browser UI | Sebastián Ramírez (tiangolo) | MIT |
+| uvicorn | Local web server | Encode | BSD-3-Clause |
+| python-multipart | File uploads in the browser UI | Andrew Dunham and contributors | Apache-2.0 |
+| httpx | HTTP client used by the test suite | Encode | BSD-3-Clause |
 | tqdm | Progress bars | tqdm maintainers | MPL-2.0 AND MIT |
 | certifi | TLS certificate bundle | certifi maintainers | MPL-2.0 |
 | FFmpeg | Audio extraction (`ffmpeg` command you install yourself) | FFmpeg project | LGPL/GPL, depending on your build |
