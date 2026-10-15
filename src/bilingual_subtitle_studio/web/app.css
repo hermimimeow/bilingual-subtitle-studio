@@ -26,6 +26,7 @@
   --review: #E0B45B;
   --error: #E07A6A;
   --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  --drift-peak: 0.1;
 }
 
 @media (prefers-color-scheme: light) {
@@ -52,6 +53,7 @@
     --review: #9A5B13;
     --error: #B33A2A;
     --shadow: 0 12px 32px rgba(80, 80, 57, 0.16);
+    --drift-peak: 0.12;
   }
 }
 
@@ -78,6 +80,7 @@
   --review: #9A5B13;
   --error: #B33A2A;
   --shadow: 0 12px 32px rgba(80, 80, 57, 0.16);
+  --drift-peak: 0.12;
 }
 
 :root[data-theme="dark"] {
@@ -252,6 +255,7 @@ body {
 .layout {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: 1rem;
   max-width: 1160px;
   margin: 0 auto;
@@ -572,3 +576,35 @@ table.editor { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: none; }
 }
+
+/* ---------- Floating words in the background ---------- */
+.drift-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.drift-word {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  font-size: var(--size);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--muted);
+  opacity: 0;
+  animation: drift var(--dur) ease-in-out var(--delay) infinite;
+}
+@keyframes drift {
+  0% { opacity: 0; transform: translate3d(0, 0, 0); }
+  20% { opacity: var(--drift-peak); }
+  80% { opacity: var(--drift-peak); }
+  100% { opacity: 0; transform: translate3d(var(--dx), var(--dy), 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drift-layer { display: none; }
+}
+/* Page content sits above the floating words */
+.topbar, .layout { position: relative; z-index: 1; }

@@ -588,4 +588,32 @@ async function init() {
   refreshPreview();
 }
 
+// ---------- Background words ----------
+
+const DRIFT_WORDS = [
+  "subtitle", "字幕", "翻訳", "자막", "субтитры", "sous-titres", "Untertitel", "sottotitoli",
+  "subtítulos", "legendas", "altyazı", "phụ đề", "คำบรรยาย", "उपशीर्षक", "ترجمة", "translate",
+  "翻译", "transcribe", "dịch", "traducción",
+];
+
+function buildDriftWords() {
+  const layer = $("#drift");
+  if (!layer) return;
+  const between = (min, max) => min + Math.random() * (max - min);
+  layer.replaceChildren(
+    ...DRIFT_WORDS.map((text) => {
+      const word = el("span", { class: "drift-word" }, text);
+      word.style.setProperty("--x", `${between(0, 92).toFixed(1)}%`);
+      word.style.setProperty("--y", `${between(0, 92).toFixed(1)}%`);
+      word.style.setProperty("--size", `${between(0.9, 2.2).toFixed(2)}rem`);
+      word.style.setProperty("--dur", `${between(28, 52).toFixed(1)}s`);
+      word.style.setProperty("--delay", `-${between(0, 50).toFixed(1)}s`);
+      word.style.setProperty("--dx", `${between(-120, 120).toFixed(0)}px`);
+      word.style.setProperty("--dy", `${between(-90, 90).toFixed(0)}px`);
+      return word;
+    }),
+  );
+}
+
+buildDriftWords();
 init().catch((error) => toast(`Could not start: ${error.message}`));

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bilingual Subtitle Studio</title>
-    <link rel="stylesheet" href="/static/app.css?v=5" />
+    <link rel="stylesheet" href="/static/app.css?v=8" />
     <script>
       // Apply the saved theme before first paint, so the page never flashes the wrong one.
       try {
@@ -16,6 +16,7 @@
     </script>
   </head>
   <body>
+    <div id="drift" class="drift-layer" aria-hidden="true"></div>
     <header class="topbar">
       <div class="brand">
         <span class="brand-mark" aria-hidden="true">BS</span>
@@ -166,6 +167,6 @@
     </main>
 
     <div id="toast" class="toast" role="status" hidden></div>
-    <script src="/static/app.js?v=8" type="module"></script>
+    <script src="/static/app.js?v=10" type="module"></script>
   </body>
 </html>
