@@ -191,12 +191,19 @@ function markViewing() {
 function updateViewing() {
   if (state.pinned) return;
   const line = window.innerHeight * 0.4;
-  const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+  const scrollable = document.documentElement.scrollHeight > window.innerHeight + 4;
+  const open = STEP_NAMES.filter((name) => !sections[name].classList.contains("is-collapsed"));
   let active = STEP_NAMES[0];
-  for (const name of STEP_NAMES) {
-    if (sections[name].getBoundingClientRect().top <= line) active = name;
+  if (!scrollable) {
+    // Nothing to scroll: the open step is the one in view.
+    active = open.includes(state.viewing) ? state.viewing : open[0] || active;
+  } else {
+    for (const name of STEP_NAMES) {
+      if (sections[name].getBoundingClientRect().top <= line) active = name;
+    }
+    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    if (atBottom) active = STEP_NAMES[STEP_NAMES.length - 1];
   }
-  if (atBottom) active = STEP_NAMES[STEP_NAMES.length - 1];
   if (active !== state.viewing) {
     state.viewing = active;
     markViewing();
