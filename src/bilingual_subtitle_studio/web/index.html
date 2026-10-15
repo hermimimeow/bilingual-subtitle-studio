@@ -34,13 +34,16 @@
 
     <main class="layout">
       <section class="card" id="step-import" data-step="Import">
-        <div class="card-head">
+        <div class="card-head" role="button" tabindex="0" aria-expanded="true">
           <span class="step-no">1</span>
           <div>
             <h2>Import media</h2>
             <p class="muted">Upload an audio file, or a video to extract its audio.</p>
           </div>
+          <span class="card-summary" aria-live="polite"></span>
+          <span class="card-toggle" aria-hidden="true">⌄</span>
         </div>
+        <div class="card-body">
         <label id="dropzone" class="dropzone">
           <input id="file-input" type="file" accept=".wav,.mp3,.m4a,.aac,.mp4,.mov,.m4v" hidden />
           <strong>Choose a file</strong>
@@ -50,16 +53,20 @@
           <span id="import-status" class="muted">No file yet.</span>
           <button id="extract-btn" class="btn" hidden>Extract audio</button>
         </div>
+        </div>
       </section>
 
       <section class="card" id="step-transcribe" data-step="Transcribe">
-        <div class="card-head">
+        <div class="card-head" role="button" tabindex="0" aria-expanded="true">
           <span class="step-no">2</span>
           <div>
             <h2>Transcribe</h2>
             <p class="muted">Creates timed subtitle rows from the prepared audio with Whisper.</p>
           </div>
+          <span class="card-summary" aria-live="polite"></span>
+          <span class="card-toggle" aria-hidden="true">⌄</span>
         </div>
+        <div class="card-body">
         <div class="grid-3">
           <label>Whisper model <select id="whisper-model"></select></label>
           <label>Language hint <select id="language-hint"></select></label>
@@ -69,16 +76,20 @@
           <button id="transcribe-btn" class="btn btn-primary" disabled>Transcribe</button>
         </div>
         <div id="transcribe-progress" class="progress-slot"></div>
+        </div>
       </section>
 
       <section class="card" id="step-translate" data-step="Translate">
-        <div class="card-head">
+        <div class="card-head" role="button" tabindex="0" aria-expanded="true">
           <span class="step-no">3</span>
           <div>
             <h2>Translate with Gemini</h2>
             <p class="muted">Fills the translation column. Only subtitle text is sent, never audio.</p>
           </div>
+          <span class="card-summary" aria-live="polite"></span>
+          <span class="card-toggle" aria-hidden="true">⌄</span>
         </div>
+        <div class="card-body">
         <div class="grid-2">
           <label>Gemini API key <input id="api-key" type="password" autocomplete="off" placeholder="Paste your key, or set GEMINI_API_KEY" /></label>
           <label>Gemini model <input id="gemini-model" type="text" value="gemini-2.5-flash" /></label>
@@ -89,16 +100,20 @@
           <button id="translate-btn" class="btn btn-primary" disabled>Translate</button>
         </div>
         <div id="translate-progress" class="progress-slot"></div>
+        </div>
       </section>
 
       <section class="card card-wide" id="step-review" data-step="Review">
-        <div class="card-head">
+        <div class="card-head" role="button" tabindex="0" aria-expanded="true">
           <span class="step-no">4</span>
           <div>
             <h2>Review subtitles</h2>
             <p id="source-note" class="muted"></p>
           </div>
+          <span class="card-summary" aria-live="polite"></span>
+          <span class="card-toggle" aria-hidden="true">⌄</span>
         </div>
+        <div class="card-body">
         <div class="row">
           <button id="mark-reviewed-btn" class="btn">Mark all reviewed</button>
           <span id="review-note" class="muted"></span>
@@ -118,16 +133,20 @@
             <tbody id="rows"></tbody>
           </table>
         </div>
+        </div>
       </section>
 
       <section class="card card-wide" id="step-export" data-step="Export">
-        <div class="card-head">
+        <div class="card-head" role="button" tabindex="0" aria-expanded="true">
           <span class="step-no">5</span>
           <div>
             <h2>Export</h2>
             <p class="muted">Preview updates as you edit. Download a file, or save all three to outputs/ui.</p>
           </div>
+          <span class="card-summary" aria-live="polite"></span>
+          <span class="card-toggle" aria-hidden="true">⌄</span>
         </div>
+        <div class="card-body">
         <div class="grid-2">
           <label>Output mode <select id="output-mode"></select></label>
           <div class="export-actions">
@@ -142,6 +161,7 @@
           <a id="download-link" class="btn btn-small" download="subtitles.srt">Download SRT</a>
         </div>
         <pre id="preview" class="preview"></pre>
+        </div>
       </section>
     </main>
 

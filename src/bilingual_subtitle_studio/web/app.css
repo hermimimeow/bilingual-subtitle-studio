@@ -506,3 +506,41 @@ table.editor { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
   box-shadow: var(--shadow), var(--glow);
   backdrop-filter: blur(12px);
 }
+
+/* ---------- Collapsible steps ---------- */
+.card-head {
+  cursor: pointer;
+  border-radius: 10px;
+  margin: -0.3rem -0.4rem 1.1rem;
+  padding: 0.3rem 0.4rem;
+  transition: background 160ms ease;
+}
+.card-head:hover { background: var(--accent-soft); }
+.card-head:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-summary {
+  margin-left: auto;
+  align-self: center;
+  max-width: 42%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.card-toggle {
+  align-self: center;
+  flex: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--muted);
+  transition: transform 200ms ease;
+}
+.card.is-collapsed .card-toggle { transform: rotate(-90deg); }
+.card.is-collapsed .card-head { margin-bottom: -0.3rem; }
+.card.is-collapsed { padding-bottom: 0.9rem; }
+.card-body { animation: card-in 220ms ease; }
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}

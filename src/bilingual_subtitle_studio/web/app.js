@@ -26,6 +26,7 @@ const state = {
   jobRunning: false,
   texts: null,
   activeFormat: "srt",
+  lastCurrent: undefined,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -98,7 +99,50 @@ async function refreshProgress() {
   renderStepper(data.progress, data.current_step);
 }
 
+// ---------- Collapsible steps ----------
+
+const sections = Object.fromEntries(STEP_NAMES.map((name) => [name, $(STEP_SECTIONS[name])]));
+
+function setExpanded(name, expanded) {
+  const card = sections[name];
+  const head = card.querySelector(".card-head");
+  card.classList.toggle("is-collapsed", !expanded);
+  card.querySelector(".card-body").hidden = !expanded;
+  head.setAttribute("aria-expanded", String(expanded));
+}
+
+function revealStep(name) {
+  setExpanded(name, true);
+  sections[name].scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderSummaries() {
+  const reviewCount = state.rows.filter((row) => row.status === "needs_review").length;
+  const summaries = {
+    Import: state.preparedAudio
+      ? state.preparedAudio.split("/").pop()
+      : state.pendingVideo
+        ? "Video waiting for audio"
+        : "No file yet",
+    Transcribe: state.source === "transcription" ? `${state.rows.length} rows` : "Not run",
+    Translate: state.source === "gemini_translation" ? `${state.rows.length} rows translated` : "Not run",
+    Review: state.rows.length ? `${state.rows.length} rows, ${reviewCount} to review` : "No rows",
+    Export: state.exportComplete ? "Saved" : "Not saved",
+  };
+  for (const [name, text] of Object.entries(summaries)) {
+    sections[name].querySelector(".card-summary").textContent = text;
+  }
+}
+
 function renderStepper(progress, currentStep) {
+  if (currentStep !== state.lastCurrent) {
+    const first = state.lastCurrent === undefined;
+    state.lastCurrent = currentStep;
+    const focus = currentStep || "Export";
+    for (const name of STEP_NAMES) setExpanded(name, name === focus);
+    if (!first) sections[focus].scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   const items = STEP_NAMES.map((name, index) => {
     const done = progress[name] >= 100;
     const current = name === currentStep;
@@ -109,7 +153,7 @@ function renderStepper(progress, currentStep) {
         class: `step ${stepClass}`.trim(),
         type: "button",
         "aria-current": current ? "step" : undefined,
-        onclick: () => $(STEP_SECTIONS[name]).scrollIntoView({ behavior: "smooth", block: "start" }),
+        onclick: () => revealStep(name),
       },
       el("span", { class: "step-dot" }, done ? "✓" : String(index + 1)),
       name,
@@ -128,6 +172,7 @@ function renderButtons() {
 function renderAll() {
   renderEditor();
   renderButtons();
+  renderSummaries();
   refreshProgress().catch((error) => toast(error.message));
 }
 
@@ -443,6 +488,17 @@ function wire() {
     scheduleExportPreview();
   });
   $("#target-language").addEventListener("change", scheduleExportPreview);
+  for (const name of STEP_NAMES) {
+    const head = sections[name].querySelector(".card-head");
+    const flip = () => setExpanded(name, sections[name].classList.contains("is-collapsed"));
+    head.addEventListener("click", flip);
+    head.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        flip();
+      }
+    });
+  }
   $("#theme-toggle").addEventListener("click", () => setTheme(currentTheme() === "dark" ? "light" : "dark"));
   setTheme(currentTheme());
 
