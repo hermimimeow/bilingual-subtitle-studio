@@ -5,79 +5,79 @@
 /* ---------- Theme tokens ---------- */
 :root {
   color-scheme: dark;
-  --bg: #050812;
-  --bg-glow-a: rgba(34, 211, 238, 0.14);
-  --bg-glow-b: rgba(167, 139, 250, 0.16);
-  --grid: rgba(56, 189, 248, 0.05);
-  --panel: rgba(15, 23, 42, 0.62);
-  --panel-solid: #0c1322;
-  --panel-raised: rgba(20, 30, 52, 0.8);
-  --ink: #e6edf8;
-  --muted: #8a9ab5;
-  --line: rgba(148, 163, 184, 0.16);
-  --line-strong: rgba(148, 163, 184, 0.3);
-  --input-bg: #0a1020;
-  --accent: #22d3ee;
-  --accent-2: #a78bfa;
-  --accent-ink: #03131c;
-  --accent-soft: rgba(34, 211, 238, 0.12);
-  --glow: 0 0 24px rgba(34, 211, 238, 0.28);
-  --done: #60a5fa;
-  --review: #fbbf24;
-  --error: #f87171;
-  --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  --bg: #121A1B;
+  --bg-glow-a: rgba(167, 170, 99, 0.16);
+  --bg-glow-b: rgba(80, 80, 57, 0.4);
+  --grid: rgba(167, 170, 99, 0.07);
+  --panel: rgba(234, 230, 210, 0.04);
+  --panel-solid: #1A2324;
+  --panel-raised: rgba(26, 35, 36, 0.94);
+  --ink: #EAE6D2;
+  --muted: rgba(234, 230, 210, 0.62);
+  --line: rgba(234, 230, 210, 0.12);
+  --line-strong: rgba(234, 230, 210, 0.24);
+  --input-bg: #0E1516;
+  --accent: #A7AA63;
+  --accent-2: #C4C78A;
+  --accent-ink: #121A1B;
+  --accent-soft: rgba(167, 170, 99, 0.14);
+  --glow: 0 0 24px rgba(167, 170, 99, 0.3);
+  --done: #A7AA63;
+  --review: #E0B45B;
+  --error: #E07A6A;
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     color-scheme: light;
-    --bg: #e8f0ff;
-    --bg-glow-a: rgba(6, 182, 212, 0.28);
-    --bg-glow-b: rgba(139, 92, 246, 0.24);
-    --grid: rgba(59, 130, 246, 0.12);
-    --panel: rgba(255, 255, 255, 0.7);
-    --panel-solid: #ffffff;
-    --panel-raised: rgba(255, 255, 255, 0.97);
-    --ink: #0b1530;
-    --muted: #4f607e;
-    --line: rgba(30, 64, 175, 0.12);
-    --line-strong: rgba(30, 64, 175, 0.24);
-    --input-bg: #ffffff;
-    --accent: #06a6c8;
-    --accent-2: #7c3aed;
-    --accent-ink: #ffffff;
-    --accent-soft: rgba(6, 166, 200, 0.13);
-    --glow: 0 0 26px rgba(6, 166, 200, 0.38);
-    --done: #1d4ed8;
-    --review: #b45309;
-    --error: #dc2626;
-    --shadow: 0 12px 34px rgba(30, 64, 175, 0.14);
+    --bg: #EAE6D2;
+    --bg-glow-a: rgba(167, 170, 99, 0.35);
+    --bg-glow-b: rgba(80, 80, 57, 0.14);
+    --grid: rgba(80, 80, 57, 0.08);
+    --panel: rgba(255, 255, 255, 0.55);
+    --panel-solid: #F8F6EA;
+    --panel-raised: rgba(248, 246, 234, 0.97);
+    --ink: #121A1B;
+    --muted: #505039;
+    --line: rgba(80, 80, 57, 0.16);
+    --line-strong: rgba(80, 80, 57, 0.28);
+    --input-bg: #FBFAF3;
+    --accent: #505039;
+    --accent-2: #A7AA63;
+    --accent-ink: #EAE6D2;
+    --accent-soft: rgba(80, 80, 57, 0.1);
+    --glow: 0 0 22px rgba(167, 170, 99, 0.45);
+    --done: #505039;
+    --review: #9A5B13;
+    --error: #B33A2A;
+    --shadow: 0 12px 32px rgba(80, 80, 57, 0.16);
   }
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #e8f0ff;
-  --bg-glow-a: rgba(6, 182, 212, 0.28);
-  --bg-glow-b: rgba(139, 92, 246, 0.24);
-  --grid: rgba(59, 130, 246, 0.12);
-  --panel: rgba(255, 255, 255, 0.7);
-  --panel-solid: #ffffff;
-  --panel-raised: rgba(255, 255, 255, 0.97);
-  --ink: #0b1530;
-  --muted: #4f607e;
-  --line: rgba(30, 64, 175, 0.12);
-  --line-strong: rgba(30, 64, 175, 0.24);
-  --input-bg: #ffffff;
-  --accent: #06a6c8;
-  --accent-2: #7c3aed;
-  --accent-ink: #ffffff;
-  --accent-soft: rgba(6, 166, 200, 0.13);
-  --glow: 0 0 26px rgba(6, 166, 200, 0.38);
-  --done: #1d4ed8;
-  --review: #b45309;
-  --error: #dc2626;
-  --shadow: 0 12px 34px rgba(30, 64, 175, 0.14);
+  --bg: #EAE6D2;
+  --bg-glow-a: rgba(167, 170, 99, 0.35);
+  --bg-glow-b: rgba(80, 80, 57, 0.14);
+  --grid: rgba(80, 80, 57, 0.08);
+  --panel: rgba(255, 255, 255, 0.55);
+  --panel-solid: #F8F6EA;
+  --panel-raised: rgba(248, 246, 234, 0.97);
+  --ink: #121A1B;
+  --muted: #505039;
+  --line: rgba(80, 80, 57, 0.16);
+  --line-strong: rgba(80, 80, 57, 0.28);
+  --input-bg: #FBFAF3;
+  --accent: #505039;
+  --accent-2: #A7AA63;
+  --accent-ink: #EAE6D2;
+  --accent-soft: rgba(80, 80, 57, 0.1);
+  --glow: 0 0 22px rgba(167, 170, 99, 0.45);
+  --done: #505039;
+  --review: #9A5B13;
+  --error: #B33A2A;
+  --shadow: 0 12px 32px rgba(80, 80, 57, 0.16);
 }
 
 :root[data-theme="dark"] {
@@ -226,7 +226,7 @@ body {
 .step.done .step-dot {
   background: var(--done);
   border-color: var(--done);
-  color: #ffffff;
+  color: var(--accent-ink);
   box-shadow: 0 0 12px color-mix(in srgb, var(--done) 55%, transparent);
 }
 .step.viewing {
