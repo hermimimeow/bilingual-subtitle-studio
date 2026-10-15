@@ -28,6 +28,7 @@ const state = {
   activeFormat: "srt",
   lastCurrent: undefined,
   viewing: "Import",
+  pinned: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -112,8 +113,17 @@ function setExpanded(name, expanded) {
   head.setAttribute("aria-expanded", String(expanded));
 }
 
+// A clicked step stays highlighted while it scrolls into place, so the bottom-of-page rule
+// cannot override it. After that, the highlight follows the scroll position again.
+let pinTimer = null;
+
 function revealStep(name) {
   setExpanded(name, true);
+  state.viewing = name;
+  markViewing();
+  state.pinned = true;
+  clearTimeout(pinTimer);
+  pinTimer = setTimeout(() => (state.pinned = false), 1200);
   sections[name].scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -162,6 +172,7 @@ function renderStepper(progress, currentStep) {
     );
   });
   $("#stepper").replaceChildren(el("div", { class: "stepper-inner" }, ...items));
+  updateViewing();
   markViewing();
 }
 
@@ -175,18 +186,25 @@ function markViewing() {
   }
 }
 
-const viewObserver = new IntersectionObserver(
-  (entries) => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        state.viewing = entry.target.dataset.step;
-        markViewing();
-      }
-    }
-  },
-  { rootMargin: "-120px 0px -55% 0px" },
-);
-for (const name of STEP_NAMES) viewObserver.observe(sections[name]);
+// The step in view is the last section whose top has passed a line 40% down the window.
+// At the bottom of the page the last step wins, so Export can always be reached.
+function updateViewing() {
+  if (state.pinned) return;
+  const line = window.innerHeight * 0.4;
+  const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+  let active = STEP_NAMES[0];
+  for (const name of STEP_NAMES) {
+    if (sections[name].getBoundingClientRect().top <= line) active = name;
+  }
+  if (atBottom) active = STEP_NAMES[STEP_NAMES.length - 1];
+  if (active !== state.viewing) {
+    state.viewing = active;
+    markViewing();
+  }
+}
+
+window.addEventListener("scroll", updateViewing, { passive: true });
+window.addEventListener("resize", updateViewing);
 
 function renderButtons() {
   $("#transcribe-btn").disabled = !state.preparedAudio || state.jobRunning;
@@ -516,7 +534,10 @@ function wire() {
   $("#target-language").addEventListener("change", scheduleExportPreview);
   for (const name of STEP_NAMES) {
     const head = sections[name].querySelector(".card-head");
-    const flip = () => setExpanded(name, sections[name].classList.contains("is-collapsed"));
+    const flip = () => {
+      setExpanded(name, sections[name].classList.contains("is-collapsed"));
+      updateViewing();
+    };
     head.addEventListener("click", flip);
     head.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
@@ -556,6 +577,7 @@ async function init() {
   state.source = "demo";
   wire();
   renderAll();
+  updateViewing();
   refreshPreview();
 }
 
