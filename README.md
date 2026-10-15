@@ -4,6 +4,12 @@ Local-first AI subtitle workflow for creators using Final Cut Pro.
 
 The MVP focuses on turning a final audio or local video export into editable subtitle data, then exporting SRT, plain text, and FCPXML title clips for Final Cut Pro.
 
+## About Me
+
+I make videos on YouTube as a part-time hobby. I film, edit, and publish them myself, so subtitles are the step that used to take the most time.
+
+My voice-over is mostly in Cantonese, because my partner is Cantonese. The conversations between friends are mostly in English or Mandarin. I want every video to be bilingual, and I often want local terms shown in each language as well. Typing and timing those lines by hand for every project was slow, so I built this tool to do most of that work and leave me free to focus on the story.
+
 ## Why Python + uv
 
 This project is optimized for local audio, transcription, subtitle processing, and XML export. Python has the strongest ecosystem for Whisper/faster-whisper, FFmpeg orchestration, subtitle tooling, and local AI workflows. `uv` keeps the local developer workflow fast and reproducible.
