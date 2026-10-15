@@ -1,23 +1,19 @@
-"""Soft pastel theme for the Streamlit UI: light background, rounded corners, friendly type."""
+"""Neutral workspace theme for the Streamlit UI: light gray canvas, flat panels, one blue accent."""
 
 APP_STYLE = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
-
 :root {
-  --bg: #fff8fb;
-  --card: #ffffff;
-  --ink: #4b4358;
-  --muted: #8f84a0;
-  --pink: #f9a8d4;
-  --pink-soft: #fce7f3;
-  --lilac: #ddd6fe;
-  --mint: #bbf7d0;
-  --border: #f3e8f0;
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --ink: #1f2937;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
 }
 
 html, body, [class*="css"] {
-  font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 }
 
 .stApp {
@@ -32,125 +28,135 @@ html, body, [class*="css"] {
 }
 
 [data-testid="stSidebar"] {
-  background: #fdf4f9;
-  border-right: 1px solid var(--border);
+  background: var(--panel);
+  border-right: 1px solid var(--line);
 }
 
 .side-logo {
-  width: 52px;
-  height: 52px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   margin: 0.25rem 0 1rem;
-  border-radius: 18px;
-  background: var(--pink);
+  border-radius: 8px;
+  background: var(--accent);
   color: #ffffff;
-  font-weight: 800;
-  font-size: 1.05rem;
+  font-weight: 700;
+  font-size: 0.8rem;
 }
 
 .top-title {
-  display: inline-block;
-  padding: 0.35rem 0.9rem;
-  border-radius: 999px;
-  background: var(--pink-soft);
-  color: #be185d;
-  font-size: 0.9rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
 }
 
 .section-heading {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
-  margin: 1.6rem 0 0.8rem;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--line);
 }
 
 .section-index {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--lilac);
-  color: #5b21b6;
-  font-weight: 800;
-  font-size: 0.95rem;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 0.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .section-heading h2 {
   margin: 0;
   color: var(--ink);
-  font-size: 1.4rem;
-  font-weight: 800;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
-.editor-heading .section-index { background: var(--mint); color: #166534; }
-.export-heading .section-index { background: var(--pink-soft); color: #be185d; }
-
 [data-testid="stFileUploader"] section {
-  border: 2px dashed var(--pink);
-  border-radius: 20px;
-  background: var(--card);
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  background: var(--panel);
 }
 
 [data-testid="stMetric"] {
-  padding: 0.9rem 1rem;
-  border-radius: 18px;
-  background: var(--card);
-  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
 }
 
 [data-testid="stAlert"] {
-  border-radius: 16px;
+  border-radius: 8px;
 }
 
 .stButton > button, .stDownloadButton > button {
   width: 100%;
-  border: none;
-  border-radius: 999px;
-  background: var(--pink);
-  color: #4a044e;
-  font-weight: 800;
-  padding: 0.55rem 1rem;
-  transition: background 150ms ease;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
 }
 
 .stButton > button:hover, .stDownloadButton > button:hover {
-  background: #f472b6;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stButton > button[kind="primary"],
+[data-testid="stBaseButton-primary"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.stButton > button[kind="primary"]:hover,
+[data-testid="stBaseButton-primary"]:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
   color: #ffffff;
 }
 
 .stButton > button:disabled {
-  background: #f3f0f5;
-  color: #b8afc2;
+  background: #f3f4f6;
+  color: #9ca3af;
+  border-color: var(--line);
 }
 
 [data-testid="stExpander"] {
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  background: var(--card);
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--panel);
 }
 
 .stCodeBlock pre {
-  border-radius: 16px;
-  border: 1px solid var(--border);
+  border-radius: 6px;
+  border: 1px solid var(--line);
 }
 
 input, textarea, [data-baseweb="select"] > div {
-  border-radius: 12px !important;
-}
-
-hr {
-  border-color: var(--border);
+  border-radius: 6px !important;
 }
 </style>
 """
 
 
 def inject_app_style(st: object) -> None:
-    """Add the pastel theme CSS to the Streamlit page.
+    """Add the workspace theme CSS to the Streamlit page.
 
     Args:
         st: The imported ``streamlit`` module, passed in so this file stays free of Streamlit imports.
