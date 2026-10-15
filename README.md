@@ -138,6 +138,10 @@ This project uses these open-source packages and services. Each remains under it
 | google-genai | Gemini API client | Google | Apache-2.0 |
 | Streamlit | Local browser UI | Snowflake | Apache-2.0 |
 | PyAV | Audio/video decoding | PyAV maintainers | BSD-3-Clause (wrapper); its macOS wheels bundle FFmpeg built with GPL components (libx264, libx265) |
+| FastAPI | Web API for the browser UI | Sebastián Ramírez (tiangolo) | MIT |
+| uvicorn | Local web server | Encode | BSD-3-Clause |
+| python-multipart | File uploads in the browser UI | Andrew Dunham and contributors | Apache-2.0 |
+| httpx | HTTP client used by the test suite | Encode | BSD-3-Clause |
 | tqdm | Progress bars | tqdm maintainers | MPL-2.0 AND MIT |
 | certifi | TLS certificate bundle | certifi maintainers | MPL-2.0 |
 | FFmpeg | Audio extraction (`ffmpeg` command you install yourself) | FFmpeg project | LGPL/GPL, depending on your build |
