@@ -4,7 +4,7 @@ Local-first AI subtitle workflow for creators using Final Cut Pro.
 
 The MVP focuses on turning a final audio or local video export into editable subtitle data, then exporting SRT, plain text, and FCPXML title clips for Final Cut Pro.
 
-## About Me
+## Why I Started This Project
 
 I make videos on YouTube as a part-time hobby. I film, edit, and publish them myself, so subtitles are the step that used to take the most time.
 
