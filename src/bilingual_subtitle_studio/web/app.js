@@ -27,6 +27,7 @@ const state = {
   texts: null,
   activeFormat: "srt",
   lastCurrent: undefined,
+  viewing: "Import",
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -145,22 +146,47 @@ function renderStepper(progress, currentStep) {
 
   const items = STEP_NAMES.map((name, index) => {
     const done = progress[name] >= 100;
-    const current = name === currentStep;
-    const stepClass = done ? "done" : current ? "current" : "";
+    const next = name === currentStep;
+    const classes = ["step", done ? "done" : "", next ? "next" : ""].filter(Boolean).join(" ");
     return el(
       "button",
       {
-        class: `step ${stepClass}`.trim(),
+        class: classes,
         type: "button",
-        "aria-current": current ? "step" : undefined,
+        "data-step": name,
         onclick: () => revealStep(name),
       },
       el("span", { class: "step-dot" }, done ? "✓" : String(index + 1)),
       name,
+      next ? el("span", { class: "step-badge" }, "Next") : null,
     );
   });
   $("#stepper").replaceChildren(el("div", { class: "stepper-inner" }, ...items));
+  markViewing();
 }
+
+// Highlights the stepper item for the section currently in view.
+function markViewing() {
+  for (const button of document.querySelectorAll(".step")) {
+    const viewing = button.dataset.step === state.viewing;
+    button.classList.toggle("viewing", viewing);
+    if (viewing) button.setAttribute("aria-current", "step");
+    else button.removeAttribute("aria-current");
+  }
+}
+
+const viewObserver = new IntersectionObserver(
+  (entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        state.viewing = entry.target.dataset.step;
+        markViewing();
+      }
+    }
+  },
+  { rootMargin: "-120px 0px -55% 0px" },
+);
+for (const name of STEP_NAMES) viewObserver.observe(sections[name]);
 
 function renderButtons() {
   $("#transcribe-btn").disabled = !state.preparedAudio || state.jobRunning;

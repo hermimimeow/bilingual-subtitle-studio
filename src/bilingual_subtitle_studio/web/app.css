@@ -225,13 +225,24 @@ body {
   color: #04110c;
   box-shadow: 0 0 12px color-mix(in srgb, var(--done) 60%, transparent);
 }
-.step.current {
-  color: var(--accent);
+.step.viewing {
+  color: var(--ink);
   background: var(--accent-soft);
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-  box-shadow: var(--glow);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
 }
-.step.current .step-dot { border-color: var(--accent); color: var(--accent); }
+.step.next { color: var(--accent); }
+.step.next .step-dot { border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
+.step-badge {
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 /* ---------- Layout and cards ---------- */
 .layout {
