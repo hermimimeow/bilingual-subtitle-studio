@@ -31,53 +31,53 @@
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     color-scheme: light;
-    --bg: #eef3fb;
-    --bg-glow-a: rgba(8, 145, 178, 0.14);
-    --bg-glow-b: rgba(124, 58, 237, 0.12);
-    --grid: rgba(37, 99, 235, 0.06);
-    --panel: rgba(255, 255, 255, 0.72);
+    --bg: #e8f0ff;
+    --bg-glow-a: rgba(6, 182, 212, 0.28);
+    --bg-glow-b: rgba(139, 92, 246, 0.24);
+    --grid: rgba(59, 130, 246, 0.12);
+    --panel: rgba(255, 255, 255, 0.7);
     --panel-solid: #ffffff;
-    --panel-raised: rgba(255, 255, 255, 0.95);
-    --ink: #0f172a;
-    --muted: #5b6b85;
-    --line: rgba(15, 23, 42, 0.1);
-    --line-strong: rgba(15, 23, 42, 0.2);
+    --panel-raised: rgba(255, 255, 255, 0.97);
+    --ink: #0b1530;
+    --muted: #4f607e;
+    --line: rgba(30, 64, 175, 0.12);
+    --line-strong: rgba(30, 64, 175, 0.24);
     --input-bg: #ffffff;
-    --accent: #0891b2;
+    --accent: #06a6c8;
     --accent-2: #7c3aed;
     --accent-ink: #ffffff;
-    --accent-soft: rgba(8, 145, 178, 0.1);
-    --glow: 0 0 22px rgba(8, 145, 178, 0.22);
+    --accent-soft: rgba(6, 166, 200, 0.13);
+    --glow: 0 0 26px rgba(6, 166, 200, 0.38);
     --done: #059669;
     --review: #b45309;
     --error: #dc2626;
-    --shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
+    --shadow: 0 12px 34px rgba(30, 64, 175, 0.14);
   }
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #eef3fb;
-  --bg-glow-a: rgba(8, 145, 178, 0.14);
-  --bg-glow-b: rgba(124, 58, 237, 0.12);
-  --grid: rgba(37, 99, 235, 0.06);
-  --panel: rgba(255, 255, 255, 0.72);
+  --bg: #e8f0ff;
+  --bg-glow-a: rgba(6, 182, 212, 0.28);
+  --bg-glow-b: rgba(139, 92, 246, 0.24);
+  --grid: rgba(59, 130, 246, 0.12);
+  --panel: rgba(255, 255, 255, 0.7);
   --panel-solid: #ffffff;
-  --panel-raised: rgba(255, 255, 255, 0.95);
-  --ink: #0f172a;
-  --muted: #5b6b85;
-  --line: rgba(15, 23, 42, 0.1);
-  --line-strong: rgba(15, 23, 42, 0.2);
+  --panel-raised: rgba(255, 255, 255, 0.97);
+  --ink: #0b1530;
+  --muted: #4f607e;
+  --line: rgba(30, 64, 175, 0.12);
+  --line-strong: rgba(30, 64, 175, 0.24);
   --input-bg: #ffffff;
-  --accent: #0891b2;
+  --accent: #06a6c8;
   --accent-2: #7c3aed;
   --accent-ink: #ffffff;
-  --accent-soft: rgba(8, 145, 178, 0.1);
-  --glow: 0 0 22px rgba(8, 145, 178, 0.22);
+  --accent-soft: rgba(6, 166, 200, 0.13);
+  --glow: 0 0 26px rgba(6, 166, 200, 0.38);
   --done: #059669;
   --review: #b45309;
   --error: #dc2626;
-  --shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
+  --shadow: 0 12px 34px rgba(30, 64, 175, 0.14);
 }
 
 :root[data-theme="dark"] {
@@ -134,6 +134,10 @@ body {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.01em;
+  background: linear-gradient(90deg, var(--ink) 30%, var(--accent) 70%, var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 .brand p { margin: 0.1rem 0 0; color: var(--muted); font-size: 0.88rem; }
 
@@ -265,6 +269,19 @@ body {
   scroll-margin-top: 110px;
 }
 .card-wide { grid-column: 1 / -1; }
+.card::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 18px;
+  right: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent);
+  box-shadow: 0 0 12px var(--accent);
+  opacity: 0.85;
+  pointer-events: none;
+}
 .card-head { display: flex; gap: 0.9rem; align-items: flex-start; margin-bottom: 1.1rem; }
 .card-head h2 {
   margin: 0;
