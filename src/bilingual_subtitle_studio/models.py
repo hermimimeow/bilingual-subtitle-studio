@@ -1,3 +1,5 @@
+"""Shared data models for subtitle segments, projects, and export styles."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -5,12 +7,14 @@ from enum import Enum
 
 
 class SubtitleStatus(str, Enum):
+    """Review state of a subtitle segment."""
     AI_DRAFT = "ai_draft"
     EDITED = "edited"
     NEEDS_REVIEW = "needs_review"
 
 
 class ToneMode(str, Enum):
+    """Translation tone the user can choose."""
     LITERAL = "literal"
     NATURAL = "natural"
     FUNNY_VLOG = "funny_vlog"
@@ -20,6 +24,7 @@ class ToneMode(str, Enum):
 
 
 class OutputMode(str, Enum):
+    """Which languages an export includes."""
     ORIGINAL_ONLY = "original_only"
     TRANSLATED_ONLY = "translated_only"
     BILINGUAL = "bilingual"
@@ -27,12 +32,14 @@ class OutputMode(str, Enum):
 
 
 class SubtitleLineRole(str, Enum):
+    """Whether a line is the original transcript or its translation."""
     SOURCE = "source"
     TRANSLATION = "translation"
 
 
 @dataclass(frozen=True)
 class SubtitleLine:
+    """One language's text for a subtitle segment."""
     language: str
     text: str
     role: SubtitleLineRole = SubtitleLineRole.TRANSLATION
@@ -40,6 +47,7 @@ class SubtitleLine:
 
 @dataclass(frozen=True)
 class SubtitleSegment:
+    """One timed subtitle block with its source and translated text."""
     index: int
     start_seconds: float
     end_seconds: float
@@ -49,6 +57,7 @@ class SubtitleSegment:
     status: SubtitleStatus = SubtitleStatus.AI_DRAFT
 
     def __post_init__(self) -> None:
+        """Validate the index and timing after the segment is created."""
         if self.index < 1:
             raise ValueError("subtitle index must start at 1")
         if self.start_seconds < 0:
@@ -65,13 +74,23 @@ class SubtitleSegment:
 
     @property
     def duration_seconds(self) -> float:
+        """Return how long the segment stays on screen, in seconds."""
         return self.end_seconds - self.start_seconds
 
     @property
     def bilingual_text(self) -> str:
+        """Return the segment's text in every language, one line each."""
         return self.render_text()
 
     def render_text(self, language_order: tuple[str, ...] | None = None) -> str:
+        """Return the segment text for the selected languages.
+
+        Args:
+            language_order: Language codes in display order. None keeps the original line order.
+
+        Returns:
+            The non-empty line texts joined by newlines.
+        """
         lines = self.lines
         if language_order is not None:
             ordered_lines: list[SubtitleLine] = []
@@ -84,6 +103,7 @@ class SubtitleSegment:
 
 @dataclass(frozen=True)
 class StylePreset:
+    """Font and color settings applied to exported title clips."""
     name: str
     font_family: str = "Helvetica Neue"
     source_font_size: int = 48
@@ -95,6 +115,7 @@ class StylePreset:
 
 @dataclass(frozen=True)
 class SubtitleProject:
+    """A named subtitle project: languages, tone, style, and segments."""
     name: str
     source_language: str = "auto"
     target_language: str = "en"

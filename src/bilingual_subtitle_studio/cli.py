@@ -1,3 +1,5 @@
+"""Command-line entry points for demo exports and audio extraction."""
+
 from __future__ import annotations
 
 import argparse
@@ -10,6 +12,7 @@ from bilingual_subtitle_studio.subtitles import write_plain_text, write_srt
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the argument parser with the demo and extract-audio commands."""
     parser = argparse.ArgumentParser(
         prog="bilingual-subtitle-studio",
         description="Local-first bilingual subtitle workflow for Final Cut Pro creators.",
@@ -27,6 +30,14 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run the command-line interface.
+
+    Args:
+        argv: Arguments to parse. When None, argparse reads sys.argv.
+
+    Returns:
+        Process exit code, 0 on success.
+    """
     parser = build_parser()
     args = parser.parse_args(argv)
 
@@ -44,6 +55,11 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def run_demo(output_dir: Path) -> None:
+    """Write the demo project as SRT, TXT, and FCPXML files.
+
+    Args:
+        output_dir: Folder that receives demo.srt, demo.txt, and demo.fcpxml.
+    """
     project = demo_project()
     segments = project.segments
 

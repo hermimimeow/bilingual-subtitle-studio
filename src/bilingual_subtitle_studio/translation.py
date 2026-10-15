@@ -1,3 +1,5 @@
+"""Translation engine interface and the Gemini-backed implementation."""
+
 from __future__ import annotations
 
 import json
@@ -29,6 +31,7 @@ _TRANSLATION_RESPONSE_SCHEMA = {
 
 
 class TranslationEngine(Protocol):
+    """Interface for any engine that translates subtitle segments."""
     def translate(
         self,
         segments: tuple[SubtitleSegment, ...],
@@ -41,6 +44,7 @@ class TranslationEngine(Protocol):
 
 
 class PassthroughTranslationEngine:
+    """Engine that returns segments unchanged, for tests and offline use."""
     def translate(
         self,
         segments: tuple[SubtitleSegment, ...],
@@ -49,16 +53,25 @@ class PassthroughTranslationEngine:
         progress_callback: Callable[[int, int], None] | None = None,
         cancel_requested: Callable[[], bool] | None = None,
     ) -> tuple[SubtitleSegment, ...]:
+        """Return the segments unchanged."""
         return segments
 
 
 class GeminiTranslationEngine:
+    """Translate subtitle text with Gemini, in batches that keep timing intact."""
     def __init__(
         self,
         model_name: str = "gemini-2.5-flash",
         api_key: str | None = None,
         batch_size: int = 25,
     ) -> None:
+        """Store the Gemini settings used by translate().
+
+        Args:
+            model_name: Gemini model name.
+            api_key: API key from the UI or the GEMINI_API_KEY environment variable. None uses the environment.
+            batch_size: Number of subtitle rows sent per request.
+        """
         self.model_name = model_name
         self.api_key = api_key
         self.batch_size = batch_size
@@ -71,6 +84,22 @@ class GeminiTranslationEngine:
         progress_callback: Callable[[int, int], None] | None = None,
         cancel_requested: Callable[[], bool] | None = None,
     ) -> tuple[SubtitleSegment, ...]:
+        """Translate segments in batches, reporting progress and honoring cancellation.
+
+        Args:
+            segments: Source segments in timeline order.
+            target_language: Name of the target language, used in the prompt.
+            tone: Tone the translation should use.
+            progress_callback: Called with (batches_done, total_batches) after each batch.
+            cancel_requested: Checked before each batch. When it returns True, translation stops.
+
+        Returns:
+            Translated segments in the same order, with timing preserved.
+
+        Raises:
+            RuntimeError: If google-genai is not installed.
+            OperationCancelled: If cancel_requested returns True.
+        """
         if not segments:
             return segments
 

@@ -1,3 +1,5 @@
+"""Streamlit page for the subtitle workflow: import, transcribe, translate, edit, and export."""
+
 from __future__ import annotations
 
 import time
@@ -49,6 +51,7 @@ from bilingual_subtitle_studio.ui_logic import (
 
 
 def main() -> None:
+    """Build and run the Streamlit page for the subtitle workflow."""
     import streamlit as st
 
     st.set_page_config(page_title="Bilingual Subtitle Studio", layout="wide")

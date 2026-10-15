@@ -1,3 +1,5 @@
+"""Supported languages and their display labels."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -5,6 +7,15 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Language:
+    """A language the app can transcribe or translate into.
+
+    Attributes:
+        code: Short language code, such as "en" or "zh".
+        name: English name of the language.
+        native_name: Name written in that language.
+        max_chars_per_line: Suggested line length for subtitles.
+        direction: Text direction, "ltr" or "rtl".
+    """
     code: str
     name: str
     native_name: str
@@ -13,6 +24,7 @@ class Language:
 
     @property
     def label(self) -> str:
+        """Return a display label such as 'English (English)'."""
         return f"{self.name} ({self.native_name})"
 
 
@@ -42,5 +54,6 @@ LANGUAGE_LABEL_TO_CODE = {language.label: language.code for language in SUPPORTE
 
 
 def language_label(code: str) -> str:
+    """Return the display label for a language code, or the code itself if unknown."""
     language = LANGUAGE_BY_CODE.get(code)
     return language.label if language else code

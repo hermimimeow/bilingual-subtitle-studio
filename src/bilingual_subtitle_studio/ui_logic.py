@@ -1,6 +1,7 @@
 """Pure helpers for the Streamlit UI.
 
-Nothing here imports Streamlit, so these functions can be tested directly."""
+Nothing here imports Streamlit, so these functions can be tested directly.
+"""
 
 from __future__ import annotations
 

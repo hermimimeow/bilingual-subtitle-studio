@@ -1,3 +1,5 @@
+"""Export a subtitle project as a minimal Final Cut Pro (FCPXML) title timeline."""
+
 from __future__ import annotations
 
 from html import escape
@@ -7,7 +9,16 @@ from bilingual_subtitle_studio.models import SubtitleProject
 
 
 def render_basic_fcpxml(project: SubtitleProject) -> str:
-    # This is intentionally minimal. Real Final Cut validation should drive the next iteration.
+    """Render the project as FCPXML text with one title clip per segment.
+
+    The output is intentionally minimal and has not yet been validated in Final Cut Pro.
+
+    Args:
+        project: The subtitle project to export.
+
+    Returns:
+        The FCPXML document as a string.
+    """
     titles = []
     for segment in project.segments:
         titles.append(
@@ -57,6 +68,12 @@ def render_basic_fcpxml(project: SubtitleProject) -> str:
 
 
 def write_basic_fcpxml(path: Path, project: SubtitleProject) -> None:
+    """Write the project as an FCPXML file, creating parent folders as needed.
+
+    Args:
+        path: Destination .fcpxml file.
+        project: The subtitle project to export.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(render_basic_fcpxml(project), encoding="utf-8")
 

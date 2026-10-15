@@ -1,9 +1,12 @@
+"""Built-in sample project for the demo command and the UI's starting data."""
+
 from __future__ import annotations
 
 from bilingual_subtitle_studio.models import SubtitleProject, SubtitleSegment
 
 
 def demo_segments() -> tuple[SubtitleSegment, ...]:
+    """Return sample subtitle segments: Chinese source text with English translations."""
     return (
         SubtitleSegment(
             index=1,
@@ -23,4 +26,5 @@ def demo_segments() -> tuple[SubtitleSegment, ...]:
 
 
 def demo_project() -> SubtitleProject:
+    """Return the sample subtitle project built from demo_segments()."""
     return SubtitleProject(name="Demo Bilingual Subtitles", segments=demo_segments())

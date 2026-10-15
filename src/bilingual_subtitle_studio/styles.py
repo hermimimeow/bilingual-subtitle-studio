@@ -269,4 +269,5 @@ hr {
 
 
 def inject_dark_style(st: object) -> None:
+    """Add the dark theme CSS to the Streamlit page."""
     st.markdown(DARK_STYLE, unsafe_allow_html=True)

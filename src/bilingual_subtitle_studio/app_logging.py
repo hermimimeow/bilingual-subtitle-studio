@@ -1,3 +1,5 @@
+"""Set up local troubleshooting logs written to logs/app.log."""
+
 from __future__ import annotations
 
 import logging
@@ -7,6 +9,16 @@ LOG_PATH = Path("logs/app.log")
 
 
 def get_logger(name: str = "bilingual_subtitle_studio") -> logging.Logger:
+    """Return a named logger that writes to the local log file.
+
+    Handlers are attached once per logger, so calling this repeatedly is safe.
+
+    Args:
+        name: Logger name, usually the module that logs.
+
+    Returns:
+        The configured logger.
+    """
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     logger = logging.getLogger(name)

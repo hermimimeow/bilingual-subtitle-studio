@@ -1,3 +1,5 @@
+"""Render subtitles as SRT and plain text, and write them to disk."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -6,6 +8,11 @@ from bilingual_subtitle_studio.models import SubtitleSegment
 
 
 def format_srt_timestamp(seconds: float) -> str:
+    """Format seconds as an SRT timestamp, such as 00:01:02,500.
+
+    Raises:
+        ValueError: If seconds is negative.
+    """
     if seconds < 0:
         raise ValueError("SRT timestamp cannot be negative")
 
@@ -20,6 +27,15 @@ def render_srt(
     segments: list[SubtitleSegment] | tuple[SubtitleSegment, ...],
     language_order: tuple[str, ...] | None = None,
 ) -> str:
+    """Render segments as an SRT document.
+
+    Args:
+        segments: Subtitle segments to render.
+        language_order: Languages to include in each block. None includes every language.
+
+    Returns:
+        SRT text with numbered blocks.
+    """
     blocks: list[str] = []
     for output_index, segment in enumerate(segments, start=1):
         blocks.append(
@@ -41,6 +57,15 @@ def render_plain_text(
     segments: list[SubtitleSegment] | tuple[SubtitleSegment, ...],
     language_order: tuple[str, ...] | None = None,
 ) -> str:
+    """Render segments as readable text, with a timestamp header for each block.
+
+    Args:
+        segments: Subtitle segments to render.
+        language_order: Languages to include in each block. None includes every language.
+
+    Returns:
+        Blocks separated by blank lines.
+    """
     lines: list[str] = []
     for segment in segments:
         lines.append(
@@ -55,6 +80,13 @@ def write_srt(
     segments: list[SubtitleSegment] | tuple[SubtitleSegment, ...],
     language_order: tuple[str, ...] | None = None,
 ) -> None:
+    """Render segments as SRT and write them to a file.
+
+    Args:
+        path: Destination .srt file. Parent folders are created as needed.
+        segments: Subtitle segments to render.
+        language_order: Languages to include in each block. None includes every language.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(render_srt(segments, language_order), encoding="utf-8")
 
@@ -64,5 +96,12 @@ def write_plain_text(
     segments: list[SubtitleSegment] | tuple[SubtitleSegment, ...],
     language_order: tuple[str, ...] | None = None,
 ) -> None:
+    """Render segments as plain text and write them to a file.
+
+    Args:
+        path: Destination .txt file. Parent folders are created as needed.
+        segments: Subtitle segments to render.
+        language_order: Languages to include in each block. None includes every language.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(render_plain_text(segments, language_order), encoding="utf-8")
