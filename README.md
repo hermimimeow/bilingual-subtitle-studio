@@ -28,7 +28,15 @@ uv run ruff check src tests
 
 Ruff and pytest are dev dependencies, so `uv sync` installs them.
 
-## Start The Clickable UI
+## Start The Web UI
+
+```bash
+uv run bilingual-subtitle-studio-web
+```
+
+Then open http://127.0.0.1:8000. The server listens on this computer only. The page has five steps: import media, transcribe, translate with Gemini, review the subtitle rows, and export. Long jobs run in the background, and you can stop them from the page.
+
+## Start The Clickable UI (Streamlit)
 
 ```bash
 uv run streamlit run src/bilingual_subtitle_studio/ui.py
@@ -101,9 +109,12 @@ src/bilingual_subtitle_studio/
   translation.py    Translation/rewrite engine interface
   operations.py     Long-running operation cancellation helpers
   styles.py         Dark theme CSS for the Streamlit UI
+  api.py            Local web API: uploads, background jobs, exports
+  web/              Browser page: HTML, CSS, and JavaScript
   ui.py             Streamlit local browser UI, split into one function per section
   ui_logic.py       Pure UI helpers (progress, row conversion, export rules); no Streamlit imports
 tests/
+  test_api.py
   test_exports.py
   test_translation.py
   test_ui_helpers.py
