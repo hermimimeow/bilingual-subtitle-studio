@@ -26,7 +26,9 @@ from bilingual_subtitle_studio.subtitles import render_plain_text, render_srt
 from bilingual_subtitle_studio.transcription import FasterWhisperTranscriptionEngine
 from bilingual_subtitle_studio.translation import GeminiTranslationEngine
 from bilingual_subtitle_studio.ui_logic import (
+    STEP_NAMES,
     _calculate_progress,
+    _current_step,
     _current_task,
     _download_payload,
     _estimate_eta,
@@ -59,8 +61,16 @@ def main() -> None:
     logger = get_logger("bilingual_subtitle_studio.ui")
 
     _init_session_state(st)
+    progress = _calculate_progress(
+        st.session_state.rows,
+        st.session_state.subtitle_source,
+        st.session_state.prepared_audio_path,
+        st.session_state.export_complete,
+        st.session_state.output_mode,
+    )
     _render_title(st)
-    output_dir, upload_dir, operation_placeholder = _render_sidebar(st, logger)
+    _render_stepper(st, progress)
+    output_dir, upload_dir, operation_placeholder = _render_sidebar(st, logger, progress)
     _render_import_section(st, logger, upload_dir)
     _render_transcription_section(st, logger, operation_placeholder)
     _render_translation_section(st, logger, operation_placeholder)
@@ -140,16 +150,29 @@ def _render_section_heading(st: object, index: str, title: str, class_name: str 
     )
 
 
-def _render_sidebar(st: object, logger: object) -> tuple[str, str, object]:
+def _render_stepper(st: object, progress: dict[str, int]) -> None:
+    """Show the workflow steps, marking which are done and which one is current.
+
+    Args:
+        st: The imported ``streamlit`` module.
+        progress: Percent complete per step, as returned by calculate_progress.
+    """
+    current = _current_step(progress)
+    items = []
+    for number, step in enumerate(STEP_NAMES, start=1):
+        if progress[step] >= 100:
+            state, marker = "done", "✓"
+        elif step == current:
+            state, marker = "current", str(number)
+        else:
+            state, marker = "pending", str(number)
+        items.append(f'<div class="step {state}"><span class="step-dot">{marker}</span>{step}</div>')
+    st.markdown(f'<div class="stepper">{"".join(items)}</div>', unsafe_allow_html=True)
+
+
+def _render_sidebar(st: object, logger: object, progress: dict[str, int]) -> tuple[str, str, object]:
     with st.sidebar:
         st.markdown("<div class='side-logo'>BSS</div>", unsafe_allow_html=True)
-        progress = _calculate_progress(
-            st.session_state.rows,
-            st.session_state.subtitle_source,
-            st.session_state.prepared_audio_path,
-            st.session_state.export_complete,
-            st.session_state.output_mode,
-        )
         _render_current_task_panel(st, _current_task(progress))
         _render_progress_panel(
             st,

@@ -2,7 +2,9 @@ import unittest
 
 from bilingual_subtitle_studio.models import SubtitleSegment, SubtitleStatus
 from bilingual_subtitle_studio.ui_logic import (
+    STEP_NAMES,
     _calculate_progress,
+    _current_step,
     _current_task,
     _download_payload,
     _estimate_eta,
@@ -186,6 +188,20 @@ class _FakeState:
     operation_running = False
     operation_cancel_requested = False
     last_operation_summary = "Idle"
+
+
+class CurrentStepTests(unittest.TestCase):
+    def test_first_unfinished_step_is_current(self) -> None:
+        progress = {"Import": 100, "Transcribe": 100, "Translate": 0, "Review": 0, "Export": 0}
+        self.assertEqual(_current_step(progress), "Translate")
+
+    def test_import_is_current_when_nothing_is_done(self) -> None:
+        progress = {step: 0 for step in STEP_NAMES}
+        self.assertEqual(_current_step(progress), "Import")
+
+    def test_no_current_step_when_everything_is_done(self) -> None:
+        progress = {step: 100 for step in STEP_NAMES}
+        self.assertIsNone(_current_step(progress))
 
 
 if __name__ == "__main__":
